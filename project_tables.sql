@@ -45,3 +45,9 @@ CREATE TABLE actorrel (
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
     FOREIGN KEY (actor_id) REFERENCES actor(actor_id)
 );
+
+CREATE TABLE ratings (
+    movie_id int,
+    globalrating int,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+);
