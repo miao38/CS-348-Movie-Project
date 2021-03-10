@@ -8,7 +8,7 @@ mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'BoilerMakers'
 app.config['MYSQL_DATABASE_DB'] = 'cs348projectdb'
-app.config['MYSQL_DATABASE_HOST'] = '34.67.4.58'
+app.config['MYSQL_DATABASE_HOST'] = '34.121.109.50'
 mysql.init_app(app)
 
 conn = mysql.connect()
