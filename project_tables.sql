@@ -51,3 +51,9 @@ CREATE TABLE ratings (
     globalrating int,
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
 );
+
+CREATE TABLE streamingplatform (
+    movie_id int,
+    platform varchar(255) NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+);
