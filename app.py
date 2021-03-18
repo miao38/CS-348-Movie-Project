@@ -27,11 +27,17 @@ def sigin():
 def search():
   cursor.execute('SELECT * from movies;')
   
+  print(type(cursor))
   table = "<html> <table border = '1'>"
-  
-  for (name) in cursor:
+  table = table + "<tr>\n"
+  table = table + "<td>Movie ID</td><td>Title</td><td>Genre</td><td>Year</td><td>Language</td>\n"
+  table = table + "</tr>\n"
+  movie_id = 1
+  for (movie_id, title, genre, year, language) in cursor:
     table = table + "<tr>\n"
-    table = table + "<td>Movie Name</td><td>" + ''.join(name) + "</td>"
+    table = table + "<td>" + str(movie_id) + "</td><td>" + title + "</td><td>" + genre + "</td><td>" + str(year) + "</td><td>" + language + "</td><td>\n"
+    table = table + "</tr>\n"
+    movie_id += 1
 
   table = table + "</table> </html>"
   return table
