@@ -23,6 +23,15 @@ def main():
 def sigin():
   return render_template('signup.html')
 
+@app.route("/search_test")
+def search_test():
+  cursor.execute("SELECT DISTINCT genre FROM movies;")
+  genrelist = cursor.fetchall()
+  cursor.execute("SELECT DISTINCT language FROM movies;")
+  languagelist = cursor.fetchall()
+  ratinglist = [1,2,3,4,5]
+  return render_template("search.html", genrelist = genrelist, languagelist = languagelist, ratinglist = ratinglist)
+
 @app.route("/search")
 def search():
   cursor.execute('SELECT * from movies;')
@@ -43,4 +52,4 @@ def search():
   return table
 
 if __name__ == "__main__":
-  app.run()
+  app.run(debug=True)
