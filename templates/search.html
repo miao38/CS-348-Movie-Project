@@ -14,21 +14,21 @@
     <br><br>
     <div class="drop down">
       <!--Main drop down-->
-      <form action="search.html">
+      <form action="{{ url_for('handle_search_data') }}" method="POST">
         <label for="category">Choose a category: </label>
         <select name="category" id="category">
-          <option value="All"></option>
+          <option value="%"></option>
           <option value="Movie">Movie</option>
           <option value="Director">Director</option>
           <option value="Actor">Actor</option>
         </select>
-        <input type="name" name="inputName" id="inputName" class="form-control" placeholder="Name" required autofocus>
-        <button id="btnSearch" class="btn btn-lg btn-primary btn-block" type="button">Search</button>
+        <input type="name" name="inputText" id="inputText" class="form-control" placeholder="Name"  autofocus>
+        <button id="btnSearch" class="btn btn-lg btn-primary btn-block" type="submit">Search</button>
         
         <br><br>
         <!--Genre drop down-->
         Genre: <select name="genre">
-          <option value="All"></option>
+          <option value="%"></option>
           {% for g in genrelist %}
             <option value={{g[0]}}>{{g[0]}}</option>
           {% endfor %}
@@ -37,7 +37,7 @@
         <br><br>
         <!--Rating drop down-->
         Rating: <select name="rating">
-          <option value="All"></option>
+          <option value="%"></option>
           {% for r in ratinglist %}
             <option value={{r}}>{{r}}</option>
           {% endfor %}
@@ -46,18 +46,21 @@
         <br><br>
         <!--Language drop down-->
         Language: <select name="language">
-          <option value="All"></option>
+          <option value="%"></option>
           {% for l in languagelist %}
             <option value={{l[0]}}>{{l[0]}}</option>
           {% endfor %}
         </select>
+      </form>
         
         <br><br>
-        <!--Add to watchlist-->
+        <!--Add to watchlist
+      <form action="{{ url_for('handle_watchlist_data') }}" method="POST">
         <Label for="Watchlist">Add Movie to Watchlist: </Label>
-        <input type="name" name="inputName" id="inputName" class="form-control" placeholder="Movie Name" required autofocus>
-        <button id="btnAdd" class="btn btn-lg btn-primary btn-block" type="button">Add to Watchlist</button>
+        <input type="name" name="watchlistName" id="watchlistName" class="form-control" placeholder="Movie Name" required autofocus>
+        <button id="btnAdd" class="btn btn-lg btn-primary btn-block" type="submit">Add to Watchlist</button>
       </form>
+      -->
     </div>
  
   </body>
