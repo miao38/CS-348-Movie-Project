@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    user_id int NOT NULL AUTO_INCREMENT,
+    user_id varchar(255) NOT NULL,
     PRIMARY KEY (user_id)
 ); 
 
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS movies (
 );
 
 CREATE TABLE  IF NOT EXISTS watchlist (
-    user_id int NOT NULL,
+    user_id varchar(255) NOT NULL,
     movie_id int NOT NULL,
     user_rating int,
     FOREIGN KEY (user_id) REFERENCES users(user_id),

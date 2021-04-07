@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request
-
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import sessionmaker
 from flaskext.mysql import MySQL
 
 app = Flask(__name__)
@@ -11,10 +15,26 @@ app.config['MYSQL_DATABASE_DB'] = 'cs348projectdb'
 app.config['MYSQL_DATABASE_HOST'] = '34.121.109.50'
 mysql.init_app(app)
 
+# CONNECTION VARIABLES
 conn = mysql.connect()
-
+conn.autocommit = False
 cursor = conn.cursor()
+engine = sqlalchemy.create_engine(
+    'mysql+mysqlconnector://root:BoilerMakers@34.121.109.50/cs348projectdb',
+    echo=True)
+Base = declarative_base()
+class User(Base):
+  __tablename__ = 'users'
+  user_id = Column(String, primary_key = True)
 
+  def __repr__(self):
+    return "<User(id='%s')>" % (self.user_id)
+
+
+# USER VARIABLES
+gUserID = ""
+
+# FUNCTIONS
 @app.route("/")
 def main():
   return render_template('index.html')
@@ -22,6 +42,35 @@ def main():
 @app.route("/signup")
 def sigin():
   return render_template('signup.html')
+
+def orm_test(user_id):
+  Base.metadata.create_all(engine)
+  Session = sessionmaker(bind=engine)
+  session = Session()
+  new_user = User(user_id=user_id)
+  session.add(new_user)
+  session.commit()
+
+
+@app.route("/handle_login", methods=["GET", "POST"])
+def handle_login():
+  gUserID = request.form.get("inputUserID")
+  print("login, " + gUserID)
+  
+  cursor.execute("SELECT user_id from users where user_id like %s;", (gUserID))
+  res = cursor.fetchone()
+  
+  if not res:
+    print("User does not exist. Create ID")
+    #cursor.execute("INSERT INTO users(user_id) values (%s)", (gUserID))
+    orm_test(gUserID)
+    conn.commit()
+  else:
+    print("User already exists. Just log in")
+
+  print("Login complete: UserID: " + gUserID)
+  return render_template('index.html')
+
 
 @app.route("/search_test", methods=["GET", "POST"])
 def search_test():
