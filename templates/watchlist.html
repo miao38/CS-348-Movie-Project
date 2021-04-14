@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+ 
+    <div class="container">
+      <nav>
+        <a href="/">Home</a> |
+        <a href="/signup">Signup</a> |
+        <a href="/search">Search</a> |
+        <a href="/display_watchlist">Watch List</a> |
+      </nav>
+    </div>
+
+    <br><br>
+    <div class="container">
+      <!--Main drop down-->
+      <form action="{{ url_for('handle_watch_data') }}" method="POST">
+        <label for="movieId">Rate or Remove a Movie from Your Watch List <br><br> Movie ID: </label>
+        <!-- <label for="movieId">Movie: </label> -->
+        <input type="text" name="movieId" id="movieId" class="form-control" placeholder="Enter Numeric ID"  autofocus>
+        <br><br>
+        <button id="btnDelete" name="btnDelete" class="btn btn-lg btn-primary btn-block form-control" type="submit" value="btnDelete">Remove from Watch List</button> | 
+        <button id="btnRate" name="btnRate" class="btn btn-lg btn-primary btn-block form-control" type="submit" value="btnRate">Rate</button> 
+        <input type="text" name="rating" id="rating" class="form-control" placeholder="Rating 1 - 10"  autofocus>
+        <br><br>
+        {{watchlist|safe}}
+    </div>
+ 
+  </body>
+</html>

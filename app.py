@@ -54,6 +54,7 @@ def orm_test(user_id):
 
 @app.route("/handle_login", methods=["GET", "POST"])
 def handle_login():
+  global gUserID
   gUserID = request.form.get("inputUserID")
   print("login, " + gUserID)
   
@@ -144,6 +145,87 @@ def handle_watchlist_data():
   print(watchlistName)
   
   return "".join(["<HTML>Added movie ", watchlistName, " to watchlist!!</HTML>"])
+
+@app.route("/display_watchlist_table", methods=["GET"])
+def display_watchlist_table():  
+  cursor.execute("SELECT watchlist.movie_id, movies.title, movies.genre, movies.year, movies.language, mov_dir.director_name, mov_act.actor_name, sp.platform, user_rating FROM watchlist JOIN movies ON watchlist.movie_id = movies.movie_id JOIN (SELECT movie_id, director_name FROM directorrel JOIN director on directorrel.director_id = director.director_id) mov_dir ON watchlist.movie_id = mov_dir.movie_id JOIN (SELECT movie_id, actor_name FROM actorrel JOIN actor on actorrel.actor_id = actor.actor_id) mov_act ON watchlist.movie_id = mov_act.movie_id JOIN streamingplatform sp ON watchlist.movie_id = sp.movie_id WHERE watchlist.user_id = %s;", gUserID)
+
+  table = "<html> <table border = '1'>"
+  table = table + "<tr>\n"
+  table = table + "<td>Movie ID</td><td>Title</td><td>Genre</td><td>Year</td><td>Language</td><td>Dirctor</td><td>Actors</td><td>Platform</td><td>Your Rating</td>\n"
+  table = table + "</tr>\n"
+  prev_movie = -1
+  prev_title = ''
+  prev_genre = ''
+  prev_year = 0
+  prev_lang = ''
+  prev_dir = ''
+  prev_plat = ''
+  prev_rating = 0
+  actor_list = []
+
+  for (movie_id, title, genre, year, language, director_name, actor_name, platform, user_rating) in cursor:
+    if prev_movie == movie_id:
+      actor_list.append(actor_name)
+    elif prev_movie == -1:
+      prev_movie = movie_id
+      prev_title = title
+      prev_genre = genre
+      prev_year = year
+      prev_lang = language
+      prev_dir = director_name
+      prev_plat = platform
+      prev_rating = user_rating
+      actor_list = []
+      actor_list.append(actor_name)
+    else:
+      table = table + "<tr>\n"
+      actor_string = str(actor_list).replace("', '",",<br/>").strip("['").strip("']")
+      table = table + "<td>" + str(prev_movie) + "</td><td>" + prev_title + "</td><td>" + prev_genre + "</td><td>" + str(prev_year) + "</td><td>" + prev_lang + "</td><td>" + prev_dir +  "</td><td>" + actor_string + "</td><td>" + prev_plat + "</td><td>" + str(prev_rating) + "\n"
+      table = table + "</tr>\n"
+      prev_movie = movie_id
+      prev_title = title
+      prev_genre = genre
+      prev_year = year
+      prev_lang = language
+      prev_dir = director_name
+      prev_plat = platform
+      prev_rating = user_rating
+      actor_list = []
+      actor_list.append(actor_name)
+  
+  if prev_movie == -1:
+    table = table + "<td colspan= 9>" + "Uh oh!...You do not currently have any movies in your Watch List :(" + "<br/>" + "Start building your Watch List by adding movies from the Search page"
+  else:
+    table = table + "<tr>\n"
+    actor_string = str(actor_list).replace("', '",",<br/>").strip("['").strip("']")
+    table = table + "<td>" + str(prev_movie) + "</td><td>" + prev_title + "</td><td>" + prev_genre + "</td><td>" + str(prev_year) + "</td><td>" + prev_lang + "</td><td>" + prev_dir +  "</td><td>" + actor_string + "</td><td>" + prev_plat + "</td><td>" + str(prev_rating) + "\n"
+    table = table + "</tr>\n"
+    table = table + "</table><a href=\"/display_watchlist\"></a></html>" 
+    
+  return table
+
+@app.route("/display_watchlist", methods=["GET", "POST"])
+def display_watchlist():
+  return render_template("watchlist.html", watchlist = display_watchlist_table())
+
+@app.route("/handle_watch_data", methods=["POST"])
+def handle_watch_data():
+  movie_id = None
+  rating = None
+  movie_id = request.form["movieId"]
+
+  if request.form.get("btnDelete") == "btnDelete":
+    cursor.execute("DELETE FROM watchlist WHERE user_id = %s and movie_id = %s;", (gUserID, movie_id))
+    conn.commit()
+  elif request.form.get("btnRate") == "btnRate":
+    rating = request.form["rating"]
+    if rating == '':
+      rating = None
+    cursor.execute("UPDATE watchlist SET user_rating = %s WHERE user_id = %s and movie_id = %s;", (rating, gUserID, movie_id))
+    conn.commit()
+  
+  return display_watchlist()
 
 if __name__ == "__main__":
   app.run(debug=True)
