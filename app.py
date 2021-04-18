@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -37,7 +37,7 @@ gUserID = ""
 # FUNCTIONS
 @app.route("/")
 def main():
-  return render_template('index.html')
+  return render_template('signup.html')
 
 @app.route("/signup")
 def sigin():
@@ -70,26 +70,35 @@ def handle_login():
     print("User already exists. Just log in")
 
   print("Login complete: UserID: " + gUserID)
-  return render_template('index.html')
+  return redirect("/search")
 
+@app.route("/logout")
+def logout():
+  gUserID = None
+  return redirect("/signup")
 
-@app.route("/search_test", methods=["GET", "POST"])
-def search_test():
+@app.route("/search", methods=["GET", "POST"])
+def search():
   cursor.execute("SELECT DISTINCT genre FROM movies;")
   genrelist = cursor.fetchall()
   cursor.execute("SELECT DISTINCT language FROM movies;")
   languagelist = cursor.fetchall()
   ratinglist = [1,2,3,4,5,6,7,8,9]
-  return render_template("search.html", genrelist = genrelist, languagelist = languagelist, ratinglist = ratinglist)
+  return render_template("search.html", genrelist = genrelist, languagelist = languagelist, ratinglist = ratinglist, username = gUserID)
 
-@app.route("/handle_search_data", methods=["POST"])
-def handle_search_data():
+@app.route("/handle_search_table", methods=["POST"])
+def handle_search_table():
+  global category
+  global inputText
+  global genre
+  global rating
+  global language
+
   category = None
   inputText = None
   genre = None
   rating = None
   language = None
-  
 
   category = request.form.get("category")
   inputText = request.form.get("inputText")
@@ -97,17 +106,9 @@ def handle_search_data():
   rating = request.form.get("rating")
   language = request.form.get("language")
 
-  print("Category: " + category)
-  print("Input: " + inputText)
-  print("Genre: " + genre)
-  print("Rating: " + rating)
-  print("Language: " + language)
-  
   return display_search(category, inputText, genre, rating, language)
 
-
-def display_search(category, inputText, genre, rating, language):  
-  
+def display_search(category, inputText, genre, rating, language):
   likePattern = "%"+inputText+"%"
 
   if category == "Movie" or category == "%":
@@ -130,10 +131,25 @@ def display_search(category, inputText, genre, rating, language):
     table = table + "<td>" + str(movie_id) + "</td><td>" + title + "</td><td>" + genre + "</td><td>" + language + "</td><td>" + str(rating) + "</td><td>\n"
     table = table + "</tr>\n"
     movie_id += 1
-
-  table = table + "</table><a href=\"/search_test\">GO BACK</a></html>" 
+  #table = table + "</table><a href=\"/search\">GO BACK</a></html>" 
   
   return table
+
+@app.route("/display_search_table", methods=["GET", "POST"])
+def display_search_table():
+  return render_template("search_table.html", searchlist = handle_search_table(), username = gUserID)
+
+@app.route("/handle_search_data", methods=["POST"])
+def handle_search_data():
+  #movie_id = None
+  #rating = None
+  movie_id = request.form["movieId"]
+  #print(movie_id, rating)
+
+  if request.form.get("btnAdd") == "btnAdd":
+    cursor.execute("INSERT INTO watchlist (user_id, movie_id, user_rating) VALUES (%s, %s, %s)", (gUserID, movie_id, "None"))
+    conn.commit()
+  return render_template("search_table.html", searchlist = display_search(category, inputText, genre, rating, language), username = gUserID)
 
 @app.route("/handle_watchlist_data", methods=["POST"])
 def handle_watchlist_data():
@@ -207,7 +223,7 @@ def display_watchlist_table():
 
 @app.route("/display_watchlist", methods=["GET", "POST"])
 def display_watchlist():
-  return render_template("watchlist.html", watchlist = display_watchlist_table())
+  return render_template("watchlist.html", watchlist = display_watchlist_table(), username = gUserID)
 
 @app.route("/handle_watch_data", methods=["POST"])
 def handle_watch_data():
