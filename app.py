@@ -142,12 +142,11 @@ def display_search_table():
 @app.route("/handle_search_data", methods=["POST"])
 def handle_search_data():
   #movie_id = None
-  #rating = None
+  user_rating = None
   movie_id = request.form["movieId"]
   #print(movie_id, rating)
-
   if request.form.get("btnAdd") == "btnAdd":
-    cursor.execute("INSERT INTO watchlist (user_id, movie_id, user_rating) VALUES (%s, %s, %s)", (gUserID, movie_id, "None"))
+    cursor.execute("INSERT INTO watchlist (user_id, movie_id, user_rating) VALUES (%s, %s, %s)", (gUserID, movie_id, user_rating))
     conn.commit()
   return render_template("search_table.html", searchlist = display_search(category, inputText, genre, rating, language), username = gUserID)
 
