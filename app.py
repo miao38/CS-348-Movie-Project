@@ -112,23 +112,23 @@ def display_search(category, inputText, genre, rating, language):
   likePattern = "%"+inputText+"%"
 
   if category == "Movie" or category == "%":
-    cursor.execute("SELECT movies.movie_id, title, genre, language, globalrating from movies JOIN ratings on movies.movie_id = ratings.movie_id WHERE title like %s AND genre like %s AND language like %s AND globalrating >= %s;", (likePattern, genre, language, rating))
+    cursor.execute("SELECT movies.movie_id, title, genre, language, globalrating, platform from movies JOIN ratings on movies.movie_id = ratings.movie_id JOIN streamingplatform on movies.movie_id = streamingplatform.movie_id WHERE title like %s AND genre like %s AND language like %s AND globalrating >= %s;", (likePattern, genre, language, rating))
   elif category == "Director":
-    cursor.execute("SELECT movies.movie_id, title, genre, language, globalrating from movies JOIN ratings on movies.movie_id = ratings.movie_id JOIN directorrel on movies.movie_id=directorrel.movie_id JOIN director on directorrel.director_id = director.director_id WHERE director_name like %s AND genre like %s AND language like %s AND globalrating >= %s;", (likePattern, genre, language, rating))
+    cursor.execute("SELECT movies.movie_id, title, genre, language, globalrating, platform from movies JOIN ratings on movies.movie_id = ratings.movie_id JOIN directorrel on movies.movie_id=directorrel.movie_id JOIN director on directorrel.director_id = director.director_id JOIN streamingplatform on movies.movie_id = streamingplatform.movie_id WHERE director_name like %s AND genre like %s AND language like %s AND globalrating >= %s;", (likePattern, genre, language, rating))
   elif category == "Actor":
-    cursor.execute("SELECT movies.movie_id, title, genre, language, globalrating from movies JOIN ratings on movies.movie_id = ratings.movie_id JOIN actorrel on movies.movie_id=actorrel.movie_id JOIN actor on actorrel.actor_id=actor.actor_id WHERE actor_name like %s AND genre like %s AND language like %s AND globalrating >= %s;", (likePattern, genre, language, rating))
+    cursor.execute("SELECT movies.movie_id, title, genre, language, globalrating, platform from movies JOIN ratings on movies.movie_id = ratings.movie_id JOIN actorrel on movies.movie_id=actorrel.movie_id JOIN actor on actorrel.actor_id=actor.actor_id JOIN streamingplatform on movies.movie_id = streamingplatform.movie_id WHERE actor_name like %s AND genre like %s AND language like %s AND globalrating >= %s;", (likePattern, genre, language, rating))
   else:
     print("ERROR ! ERROR ! Category")
   
   print(type(cursor))
   table = "<html> <table border = '1'>"
   table = table + "<tr>\n"
-  table = table + "<td>Movie ID</td><td>Title</td><td>Genre</td><td>Language</td><td>Rating</td>\n"
+  table = table + "<td>Movie ID</td><td>Title</td><td>Genre</td><td>Language</td><td>Rating</td><td>Platform</td>\n"
   table = table + "</tr>\n"
   movie_id = 1
-  for (movie_id, title, genre, language, rating) in cursor:
+  for (movie_id, title, genre, language, rating, platform) in cursor:
     table = table + "<tr>\n"
-    table = table + "<td>" + str(movie_id) + "</td><td>" + title + "</td><td>" + genre + "</td><td>" + language + "</td><td>" + str(rating) + "</td><td>\n"
+    table = table + "<td>" + str(movie_id) + "</td><td>" + title + "</td><td>" + genre + "</td><td>" + language + "</td><td>" + str(rating) + "</td><td>" + platform + "</td><td>\n"
     table = table + "</tr>\n"
     movie_id += 1
   #table = table + "</table><a href=\"/search\">GO BACK</a></html>" 
